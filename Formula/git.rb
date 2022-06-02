@@ -1,5 +1,5 @@
-class GitHttpsCac < Formula
-  desc "Modified git for CAC authentication over https"
+class Git < Formula
+  desc "Distributed revision control system"
   homepage "https://git-scm.com"
   url "https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.36.1.tar.xz"
   sha256 "405d4a0ff6e818d1f12b3e92e1ac060f612adcb454f6299f70583058cb508370"
@@ -11,27 +11,25 @@ class GitHttpsCac < Formula
     regex(/href=.*?git[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
-  # GRABS PRE-BUILT BINARY PACKAGES
-  # bottle do
-  #   sha256 arm64_monterey: "5941a1eb703ac9814c2f8ae7c78ff31630aed04ad90a6a3073e45f4748f96e25"
-  #   sha256 arm64_big_sur:  "c85780549ae8975a0ab785039d4d58eb1e3d8a251770b05ad8d1c6b4e0bf7d44"
-  #   sha256 monterey:       "ab1bc7b6fe710217007d10792425733c09e97d97f1aa3a3b1590038a9d9f4187"
-  #   sha256 big_sur:        "37917165881c4e3bdd99f35b37eb16499e026a67aba92439fb2b3ff5a68c589a"
-  #   sha256 catalina:       "67f355f93ec444d7b0e4ef501c4d7e236eb744dc9f22b03fa00693b86060956d"
-  #   sha256 x86_64_linux:   "17b34da213e4d9f530b2775694a58fbf41212f10684cfae37bc02bdab0cb6e91"
-  # end
+  bottle do
+    sha256 arm64_monterey: "5941a1eb703ac9814c2f8ae7c78ff31630aed04ad90a6a3073e45f4748f96e25"
+    sha256 arm64_big_sur:  "c85780549ae8975a0ab785039d4d58eb1e3d8a251770b05ad8d1c6b4e0bf7d44"
+    sha256 monterey:       "ab1bc7b6fe710217007d10792425733c09e97d97f1aa3a3b1590038a9d9f4187"
+    sha256 big_sur:        "37917165881c4e3bdd99f35b37eb16499e026a67aba92439fb2b3ff5a68c589a"
+    sha256 catalina:       "67f355f93ec444d7b0e4ef501c4d7e236eb744dc9f22b03fa00693b86060956d"
+    sha256 x86_64_linux:   "17b34da213e4d9f530b2775694a58fbf41212f10684cfae37bc02bdab0cb6e91"
+  end
 
   depends_on "gettext"
-  depends_on "curl" # built-in does not support openssl encryption engines
-  depends_on "openssl@1.1"
   depends_on "pcre2"
-  
-  # uses_from_macos "curl", since: :catalina # macOS < 10.15.6 has broken cert path logic
+
+  uses_from_macos "curl", since: :catalina # macOS < 10.15.6 has broken cert path logic
   uses_from_macos "expat"
   uses_from_macos "zlib", since: :high_sierra
 
   on_linux do
     depends_on "linux-headers@4.4"
+    depends_on "openssl@1.1" # Uses CommonCrypto on macOS
   end
 
   resource "html" do
@@ -48,8 +46,6 @@ class GitHttpsCac < Formula
     url "https://cpan.metacpan.org/authors/id/R/RJ/RJBS/Net-SMTP-SSL-1.04.tar.gz"
     sha256 "7b29c45add19d3d5084b751f7ba89a8e40479a446ce21cfd9cc741e558332a00"
   end
-
-  patch :p0, :DATA
 
   def install
     # If these things are installed, tell Git build system not to use them
@@ -89,13 +85,11 @@ class GitHttpsCac < Formula
 
     args += if OS.mac?
       %w[NO_OPENSSL=1 APPLE_COMMON_CRYPTO=1]
-
     else
       openssl_prefix = Formula["openssl@1.1"].opt_prefix
 
       %W[NO_APPLE_COMMON_CRYPTO=1 OPENSSLDIR=#{openssl_prefix}]
     end
-    
 
     system "make", "install", *args
 
@@ -201,77 +195,3 @@ class GitHttpsCac < Formula
     end
   end
 end
-
-__END__
-diff --git a/http.c b/http.c
-index b148468b26..c5d7e9c52e 100644
---- a/http.c
-+++ b/http.c
-@@ -110,6 +110,9 @@ static int curl_save_cookies;
- struct credential http_auth = CREDENTIAL_INIT;
- static int http_proactive_auth;
- static const char *user_agent;
-+static const char *ssl_keytype;
-+static const char *ssl_certtype;
-+static const char *ssl_engine;
- static int curl_empty_auth = -1;
- 
- enum http_follow_config http_follow_config = HTTP_FOLLOW_INITIAL;
-@@ -355,6 +358,12 @@ static int http_options(const char *var, const char *value, void *cb)
- 
- 	if (!strcmp("http.useragent", var))
- 		return git_config_string(&user_agent, var, value);
-+	if (!strcmp("http.sslkeytype", var))
-+		return git_config_string(&ssl_keytype, var, value);
-+	if (!strcmp("http.sslcerttype", var))
-+		return git_config_string(&ssl_certtype, var, value);
-+	if (!strcmp("http.sslengine", var))
-+		return git_config_string(&ssl_engine, var, value);
- 
- 	if (!strcmp("http.emptyauth", var)) {
- 		if (value && !strcmp("auto", value))
-@@ -485,8 +494,19 @@ static void init_curl_proxy_auth(CURL *result)
- 	}
- 	else
- 		curl_easy_setopt(result, CURLOPT_PROXYAUTH, CURLAUTH_ANY);
-+
-+	/* Adding setting of engine-related curl SSL options. */
-+	if (ssl_engine != NULL) {
-+		curl_easy_setopt(result, CURLOPT_SSLENGINE, ssl_engine);
-+		curl_easy_setopt(result, CURLOPT_SSLENGINE_DEFAULT, 1L);
-+	}
-+	if (ssl_keytype != NULL)
-+		curl_easy_setopt(result, CURLOPT_SSLKEYTYPE, ssl_keytype);
-+	if (ssl_certtype != NULL)
-+		curl_easy_setopt(result, CURLOPT_SSLCERTTYPE, ssl_certtype);
- }
- 
-+
- static int has_cert_password(void)
- {
- 	if (ssl_cert == NULL || ssl_cert_password_required != 1)
-@@ -1099,7 +1119,10 @@ void http_init(struct remote *remote, const char *url, int proactive_auth)
- 		    starts_with(url, "https://"))
- 			ssl_cert_password_required = 1;
- 	}
--
-+	/* Added environment variables for expanded engine-related options. */
-+	set_from_env(&ssl_keytype, "GIT_SSL_KEYTYPE");
-+	set_from_env(&ssl_certtype, "GIT_SSL_CERTTYPE");
-+	set_from_env(&ssl_engine, "GIT_SSL_ENGINE");
- 	curl_default = get_curl_handle();
- }
- 
-diff --git a/prompt.c b/prompt.c
-index 50df17279d..9df91cf394 100644
---- a/prompt.c
-+++ b/prompt.c
-@@ -43,7 +43,7 @@ char *git_prompt(const char *prompt, int flags)
- {
- 	char *r = NULL;
- 
--	if (flags & PROMPT_ASKPASS) {
-+	if (!git_env_bool("GIT_INHIBIT_ASKPASS", 0) && flags & PROMPT_ASKPASS) {
- 		const char *askpass;
- 
- 		askpass = getenv("GIT_ASKPASS");
