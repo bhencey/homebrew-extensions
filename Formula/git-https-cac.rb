@@ -11,25 +11,27 @@ class GitHttpsCac < Formula
     regex(/href=.*?git[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
-  bottle do
-    sha256 arm64_monterey: "5941a1eb703ac9814c2f8ae7c78ff31630aed04ad90a6a3073e45f4748f96e25"
-    sha256 arm64_big_sur:  "c85780549ae8975a0ab785039d4d58eb1e3d8a251770b05ad8d1c6b4e0bf7d44"
-    sha256 monterey:       "ab1bc7b6fe710217007d10792425733c09e97d97f1aa3a3b1590038a9d9f4187"
-    sha256 big_sur:        "37917165881c4e3bdd99f35b37eb16499e026a67aba92439fb2b3ff5a68c589a"
-    sha256 catalina:       "67f355f93ec444d7b0e4ef501c4d7e236eb744dc9f22b03fa00693b86060956d"
-    sha256 x86_64_linux:   "17b34da213e4d9f530b2775694a58fbf41212f10684cfae37bc02bdab0cb6e91"
-  end
+  # GRABS PRE-BUILT BINARY PACKAGES
+  # bottle do
+  #   sha256 arm64_monterey: "5941a1eb703ac9814c2f8ae7c78ff31630aed04ad90a6a3073e45f4748f96e25"
+  #   sha256 arm64_big_sur:  "c85780549ae8975a0ab785039d4d58eb1e3d8a251770b05ad8d1c6b4e0bf7d44"
+  #   sha256 monterey:       "ab1bc7b6fe710217007d10792425733c09e97d97f1aa3a3b1590038a9d9f4187"
+  #   sha256 big_sur:        "37917165881c4e3bdd99f35b37eb16499e026a67aba92439fb2b3ff5a68c589a"
+  #   sha256 catalina:       "67f355f93ec444d7b0e4ef501c4d7e236eb744dc9f22b03fa00693b86060956d"
+  #   sha256 x86_64_linux:   "17b34da213e4d9f530b2775694a58fbf41212f10684cfae37bc02bdab0cb6e91"
+  # end
 
   depends_on "gettext"
   depends_on "pcre2"
+  depends_on "openssl@1.1" # Uses CommonCrypto on macOS
+  depends_on "curl"
 
-  uses_from_macos "curl", since: :catalina # macOS < 10.15.6 has broken cert path logic
+  # uses_from_macos "curl", since: :catalina # macOS < 10.15.6 has broken cert path logic
   uses_from_macos "expat"
   uses_from_macos "zlib", since: :high_sierra
 
   on_linux do
     depends_on "linux-headers@4.4"
-    depends_on "openssl@1.1" # Uses CommonCrypto on macOS
   end
 
   resource "html" do
@@ -46,6 +48,8 @@ class GitHttpsCac < Formula
     url "https://cpan.metacpan.org/authors/id/R/RJ/RJBS/Net-SMTP-SSL-1.04.tar.gz"
     sha256 "7b29c45add19d3d5084b751f7ba89a8e40479a446ce21cfd9cc741e558332a00"
   end
+
+  #patch :DATA
 
   def install
     # If these things are installed, tell Git build system not to use them
@@ -84,7 +88,8 @@ class GitHttpsCac < Formula
     ]
 
     args += if OS.mac?
-      %w[NO_OPENSSL=1 APPLE_COMMON_CRYPTO=1]
+      #%w[NO_OPENSSL=1 APPLE_COMMON_CRYPTO=1]
+      openssl_prefix = Formula["openssl@1.1"].opt_prefix
     else
       openssl_prefix = Formula["openssl@1.1"].opt_prefix
 
