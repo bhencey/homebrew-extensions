@@ -1,5 +1,5 @@
 class GitHttpsCac < Formula
-  desc "Distributed revision control system with support for CAC authentication over https"
+  desc "Modified git for CAC authentication over https"
   homepage "https://git-scm.com"
   url "https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.36.1.tar.xz"
   sha256 "405d4a0ff6e818d1f12b3e92e1ac060f612adcb454f6299f70583058cb508370"
