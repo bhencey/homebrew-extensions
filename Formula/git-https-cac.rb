@@ -21,11 +21,11 @@ class GitHttpsCac < Formula
   #   sha256 x86_64_linux:   "17b34da213e4d9f530b2775694a58fbf41212f10684cfae37bc02bdab0cb6e91"
   # end
 
-  depends_on "gettext"
   depends_on "curl" # built-in does not support openssl encryption engines
+  depends_on "gettext"
   depends_on "openssl@1.1"
   depends_on "pcre2"
-  
+
   # uses_from_macos "curl", since: :catalina # macOS < 10.15.6 has broken cert path logic
   uses_from_macos "expat"
   uses_from_macos "zlib", since: :high_sierra
@@ -95,7 +95,6 @@ class GitHttpsCac < Formula
 
       %W[NO_APPLE_COMMON_CRYPTO=1 OPENSSLDIR=#{openssl_prefix}]
     end
-    
 
     system "make", "install", *args
 
