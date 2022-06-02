@@ -22,16 +22,17 @@ class GitHttpsCac < Formula
   # end
 
   depends_on "gettext"
-  depends_on "pcre2"
   depends_on "openssl@1.1" # Uses CommonCrypto on macOS
   depends_on "curl"
-
+  depends_on "pcre2"
+  
   # uses_from_macos "curl", since: :catalina # macOS < 10.15.6 has broken cert path logic
   uses_from_macos "expat"
   uses_from_macos "zlib", since: :high_sierra
 
   on_linux do
     depends_on "linux-headers@4.4"
+    # depends_on "openssl@1.1" # Uses CommonCrypto on macOS
   end
 
   resource "html" do
@@ -49,7 +50,7 @@ class GitHttpsCac < Formula
     sha256 "7b29c45add19d3d5084b751f7ba89a8e40479a446ce21cfd9cc741e558332a00"
   end
 
-  #patch :DATA
+  # patch :DATA
 
   def install
     # If these things are installed, tell Git build system not to use them
@@ -88,13 +89,14 @@ class GitHttpsCac < Formula
     ]
 
     args += if OS.mac?
-      #%w[NO_OPENSSL=1 APPLE_COMMON_CRYPTO=1]
-      openssl_prefix = Formula["openssl@1.1"].opt_prefix
+      %w[NO_OPENSSL=1 APPLE_COMMON_CRYPTO=1]  
+
     else
       openssl_prefix = Formula["openssl@1.1"].opt_prefix
 
       %W[NO_APPLE_COMMON_CRYPTO=1 OPENSSLDIR=#{openssl_prefix}]
     end
+    
 
     system "make", "install", *args
 
@@ -202,7 +204,6 @@ class GitHttpsCac < Formula
 end
 
 __END__
-
 diff --git a/http.c b/http.c
 index b148468b26..c5d7e9c52e 100644
 --- a/http.c
