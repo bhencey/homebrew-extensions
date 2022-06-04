@@ -1,4 +1,4 @@
-#~/bin/sh
+#!/usr/bin/env bash
 function get_cac() {
   KEYID=PIV%20Authentication
   FOUT=cac_token.sh
