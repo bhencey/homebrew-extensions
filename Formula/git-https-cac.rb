@@ -49,7 +49,9 @@ class GitHttpsCac < Formula
     sha256 "7b29c45add19d3d5084b751f7ba89a8e40479a446ce21cfd9cc741e558332a00"
   end
 
-  patch :p0, :DATA
+  # made need to add :p0
+  patch :DATA
+
 
   def install
     # If these things are installed, tell Git build system not to use them
