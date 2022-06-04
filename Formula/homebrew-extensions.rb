@@ -1,7 +1,7 @@
 # Documentation: https://docs.brew.sh/Formula-Cookbook
 #                https://rubydoc.brew.sh/Formula
 # PLEASE REMOVE ALL GENERATED COMMENTS BEFORE SUBMITTING YOUR PULL REQUEST!
-class SetupCac < Formula
+class HomebrewExtensions < Formula
   desc ""
   homepage ""
   url "https://github.com/bhencey/homebrew-extensions/archive/refs/tags/setup_cac_0.2.tar.gz"
@@ -11,8 +11,6 @@ class SetupCac < Formula
   # depends_on "cmake" => :build
 
   def install
-    bin.install Dir["cmd"]   
-    bin.install "setup_cac"
     # ENV.deparallelize  # if your formula fails when building in parallel
     # Remove unrecognized options if warned by configure
     # https://rubydoc.brew.sh/Formula.html#std_configure_args-instance_method
