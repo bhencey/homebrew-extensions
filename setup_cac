@@ -1,20 +1,46 @@
 #!/usr/bin/env bash
-function get_cac() {
-  KEYID=PIV%20Authentication
-  FOUT=cac_token.sh
+
+# retrieve pkcs11 URI for cac
+function get_cert() {
+  echo
   echo "Searching for token starting with $LNAME"
-  CACCERT=( $(p11tool --list-tokens | grep -oe "token=$LNAME\+[a-zA-Z0-9._]\+") )
+  CACCERT=( $(p11tool --list-tokens | grep -ioe "token=$LNAME\+[a-zA-Z0-9._]\+") )
   echo "Found token $CACCERT"
-  
+  echo
   echo "Searching for certificate ending with $KEYID"
   CACKEY=( $(p11tool --list-all-certs pkcs11:$CACCERT | grep -oe "$CACCERT\+[a-zA-Z0-9=%.;]\+$KEYID") )
   echo "Found certificate $CACKEY"
+  echo
 }
 
-  
-get_cac
-echo $CACKEY
+# configure local git
+function config_git() {
+  get_cert
+  echo Setting git http.sslcert, http.sslkey, etc.
+  git config --local http.sslcert "pkcs11:$CACCERT"
+  git config --local http.sslcerttype ENG
+  git config --local http.sslkey "pkcs11:$CACKEY"
+  git config --local http.sslkeytype ENG
+  git config --local http.sslengine pkcs11
+}
 
 #echo "Writing token and certificate to $FOUT"
 #set | grep CACCERT > $FOUT
 #set | grep CACKEY >> $FOUT
+
+while getopts 'l:m:' flag; do
+  case "$flag" in
+    l) 
+      LNAME=${OPTARG};;
+    m) 
+      M=${OPTARG};;
+  esac
+done
+
+KEYID=PIV%20Authentication
+case "$M" in
+  git)
+    config_git;;
+  test)
+    ;;
+esac
