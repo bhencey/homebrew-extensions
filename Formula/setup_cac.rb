@@ -7,11 +7,15 @@ class SetupCac < Formula
   url "https://github.com/bhencey/homebrew-extensions/archive/refs/tags/setup_cac_0.2.tar.gz"
   sha256 "022552fa65bc49a02ac97fb54568115a3b98909c89b9fb45bb92d5f45abed18f"
   license ""
-
-  # depends_on "cmake" => :build
+  
+  depends_on "opensc"
+  depends_on "gnutls"
+  depends_on "git-https-cac"
 
   def install
-    bin.install "setup_cac"
+    #bin.install "setup_cac"
+    system "echo module: #{HOMEBREW_PREFIX}/Cellar/opensc/*/lib/opensc-pkcs11.so >#{etc}/pkcs11/modules/opensc.module"
+    system "patch -b #{etc}/openssl@1.1/opensssl.cnf diffs/openssl_cnf.diff"
     # ENV.deparallelize  # if your formula fails when building in parallel
     # Remove unrecognized options if warned by configure
     # https://rubydoc.brew.sh/Formula.html#std_configure_args-instance_method
