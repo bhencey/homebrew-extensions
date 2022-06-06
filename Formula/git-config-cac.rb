@@ -1,7 +1,7 @@
 # Documentation: https://docs.brew.sh/Formula-Cookbook
 #                https://rubydoc.brew.sh/Formula
 # PLEASE REMOVE ALL GENERATED COMMENTS BEFORE SUBMITTING YOUR PULL REQUEST!
-class SetupCac < Formula
+class GitConfigCac < Formula
   desc ""
   homepage ""
   url "https://github.com/bhencey/homebrew-extensions/archive/refs/tags/setup_cac_0.2.tar.gz"
@@ -12,16 +12,10 @@ class SetupCac < Formula
   depends_on "gnutls"
   depends_on "git-https-cac"
 
-  def install
+  #def install
     #bin.install "setup_cac"
-    system "echo module: #{HOMEBREW_PREFIX}/Cellar/opensc/*/lib/opensc-pkcs11.so >#{etc}/pkcs11/modules/opensc.module"
-    system "patch -b #{etc}/openssl@1.1/opensssl.cnf diffs/openssl_cnf.diff"
-    # ENV.deparallelize  # if your formula fails when building in parallel
-    # Remove unrecognized options if warned by configure
-    # https://rubydoc.brew.sh/Formula.html#std_configure_args-instance_method
-    # system "./configure", *std_configure_args, "--disable-silent-rules"
-    # system "cmake", "-S", ".", "-B", "build", *std_cmake_args
-  end
+    #system "patch -b #{etc}/openssl@1.1/opensssl.cnf diffs/openssl_cnf.diff"
+  #end
 
   test do
     # `test do` will create, run in and delete a temporary directory.
