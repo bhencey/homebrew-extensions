@@ -4,18 +4,18 @@
 class GitConfigCac < Formula
   desc ""
   homepage ""
-  url "https://github.com/bhencey/homebrew-extensions/archive/refs/tags/setup_cac_0.2.tar.gz"
-  sha256 "022552fa65bc49a02ac97fb54568115a3b98909c89b9fb45bb92d5f45abed18f"
+  url "https://github.com/bhencey/homebrew-extensions/archive/refs/tags/setup_cac_0.4.tar.gz"
+  sha256 "ed3c77d5603e534ac62fca5dc674772d3c3c031f8318e5c726937c2fef9383ea"
   license ""
   
   depends_on "opensc"
   depends_on "gnutls"
   depends_on "git-https-cac"
 
-  #def install
-    #bin.install "setup_cac"
+  def install
+    bin.install "git-config-cac"
     #system "patch -b #{etc}/openssl@1.1/opensssl.cnf diffs/openssl_cnf.diff"
-  #end
+  end
 
   test do
     # `test do` will create, run in and delete a temporary directory.
