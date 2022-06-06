@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+# TODO usage documentation
 # retrieve pkcs11 URI for cac
 function get_cert() {
   echo
@@ -23,6 +23,7 @@ function config_git() {
   git config --local http.sslkeytype ENG
   git config --local http.sslengine pkcs11
 }
+# TODO: abilty to unset above git config
 
 function test_git() {
   get_cert
