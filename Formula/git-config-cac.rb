@@ -1,21 +1,20 @@
 # Documentation: https://docs.brew.sh/Formula-Cookbook
 #                https://rubydoc.brew.sh/Formula
 # PLEASE REMOVE ALL GENERATED COMMENTS BEFORE SUBMITTING YOUR PULL REQUEST!
-class HomebrewExtensions < Formula
+class GitConfigCac < Formula
   desc ""
   homepage ""
-  url "https://github.com/bhencey/homebrew-extensions/archive/refs/tags/setup_cac_0.2.tar.gz"
-  sha256 "022552fa65bc49a02ac97fb54568115a3b98909c89b9fb45bb92d5f45abed18f"
+  url "https://github.com/bhencey/homebrew-extensions/archive/refs/tags/setup_cac_0.4.tar.gz"
+  sha256 "ed3c77d5603e534ac62fca5dc674772d3c3c031f8318e5c726937c2fef9383ea"
   license ""
-
-  # depends_on "cmake" => :build
+  
+  depends_on "opensc"
+  depends_on "gnutls"
+  depends_on "git-https-cac"
 
   def install
-    # ENV.deparallelize  # if your formula fails when building in parallel
-    # Remove unrecognized options if warned by configure
-    # https://rubydoc.brew.sh/Formula.html#std_configure_args-instance_method
-    system "./configure", *std_configure_args, "--disable-silent-rules"
-    # system "cmake", "-S", ".", "-B", "build", *std_cmake_args
+    bin.install "git-config-cac"
+    #system "patch -b #{etc}/openssl@1.1/opensssl.cnf diffs/openssl_cnf.diff"
   end
 
   test do
