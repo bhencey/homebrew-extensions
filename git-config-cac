@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+
+# retrieve pkcs11 URI for cac
+function get_cert() {
+  echo
+  echo "Searching for token starting with $LNAME"
+  CACCERT=($(p11tool --list-tokens | grep -ioe "token=$LNAME\+[a-zA-Z0-9._]\+"))
+  echo "Found token $CACCERT"
+  echo
+  echo "Searching for certificate ending with $KEYID"
+  CACKEY=($(p11tool --list-all-certs pkcs11:$CACCERT | grep -oe "$CACCERT\+[a-zA-Z0-9=%.;]\+$KEYID"))
+  echo "Found certificate $CACKEY"
+  echo
+}
+
+# configure local git
+function config_git() {
+  get_cert
+  echo Setting git http.sslcert, http.sslkey, etc.
+  git config --local http.sslcert "pkcs11:$CACCERT"
+  git config --local http.sslcerttype ENG
+  git config --local http.sslkey "pkcs11:$CACKEY"
+  git config --local http.sslkeytype ENG
+  git config --local http.sslengine pkcs11
+}
+
+function test_git() {
+  get_cert
+  echo Testing git...
+  # sh test_curl-https-cac.sh -c "$CACCERT" -k "$CACKEY" -u "$URL"
+  # set verbosity for git trace
+  # export GIT_TRACE=1
+  # export GIT_CURL_VERBOSE=1
+
+  # set verbosity for cac authentiaction
+  #export OPENSC_DEBUG=3
+
+  # export GIT_SSL_CERT_PASSWORD_PROTECTED=1
+  export GIT_SSL_CERT="pkcs11:$CACCERT"
+  export GIT_SSL_KEY="pkcs11:$CACKEY"
+  export GIT_SSL_KEYTYPE=ENG
+  export GIT_SSL_CERTTYPE=ENG
+  export GIT_SSL_ENGINE=PKCS11
+  #export GIT_SSL_BACKEND=openssl
+  git fetch --dry-run $URL master
+}
+
+function test_curl() {
+  get_cert
+  echo Testing curl...
+  echo Using: $URL
+  SSL_CERT="pkcs11:$CACCERT"
+  SSL_KEY="pkcs11:$CACKEY"
+  # explicitly passing flags
+  echo -------------------------------------
+  echo Testing curl with flags
+  curl -v --engine pkcs11 --cert "pkcs11:$CACCERT" --cert-type ENG --key "pkcs11:$CACKEY" --key-type ENG "$URL"
+  # echo
+  # echo --------------------------------------
+  # echo Testing curl with environment variables
+  # TODO currently broken
+  # set curl option flags
+  # export CULROPT_SSLCERT="pkcs11:$CACCERT"
+  # export CURLOPT_SSLKEY="pkcs11:$CACKEY"
+  # export CURLOPT_SSLCERTTYPE=ENG
+  # export CURLOPT_SSLKEYTYPE=ENG
+  # export CURLOPT_SSLENGINE=pkcs11
+  # export CURL_SSL_BACKEND=openssl
+  # curl -v "$URL"
+}
+
+while getopts 'l:m:u:' flag; do
+  case "$flag" in
+  l)
+    LNAME=${OPTARG}
+    ;;
+  m)
+    M=${OPTARG}
+    ;;
+  u)
+    URL=${OPTARG}
+    ;;
+  esac
+done
+
+KEYID=PIV%20Authentication
+# CACCERT="pkcs11"
+# CACKEY="pkcs11"
+# test_git
+
+case "$M" in
+config)
+  config_git
+  ;;
+test_git)
+  test_git
+  ;;
+test_curl)
+  test_curl
+  ;;
+esac
