@@ -23,7 +23,16 @@ function config_git() {
   git config --local http.sslkeytype ENG
   git config --local http.sslengine pkcs11
 }
-# TODO: abilty to unset above git config
+
+# Unset local git
+function unset_git() {
+  echo Unsetting git http.sslcert, http.sslkey, etc.
+  git config --local --unset http.sslcert
+  git config --local --unset http.sslcerttype
+  git config --local --unset http.sslkey
+  git config --local --unset http.sslkeytype
+  git config --local --unset http.sslengine
+}
 
 function test_git() {
   get_cert
@@ -32,10 +41,8 @@ function test_git() {
   # set verbosity for git trace
   # export GIT_TRACE=1
   # export GIT_CURL_VERBOSE=1
-
   # set verbosity for cac authentiaction
-  #export OPENSC_DEBUG=3
-
+  # export OPENSC_DEBUG=3
   # export GIT_SSL_CERT_PASSWORD_PROTECTED=1
   export GIT_SSL_CERT="pkcs11:$CACCERT"
   export GIT_SSL_KEY="pkcs11:$CACKEY"
@@ -92,6 +99,9 @@ KEYID=PIV%20Authentication
 case "$M" in
 config)
   config_git
+  ;;
+unset)
+  unset_git
   ;;
 test_git)
   test_git
