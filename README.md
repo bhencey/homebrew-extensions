@@ -15,20 +15,26 @@ The approach involves the following:
 * Setup a opensc engine for openssl.
 * Install a patched version of git linked to the curl--with-openssl.
 Thankfully, you only need the following commands:
+
 `brew install git-https-config`
+
 `brew setup_openssl`
+
 `git-config-cac -l $LASTNAME -m config`
 
 ## Formula: git-https-config
 This formula installs a helper shell script for extracting pkcs11 URI from a CAC. The the script uses the utilities provided by opensc and p11-kit to access the CAC.
 
 Setup git's local config to use CAC card.
+
 `git-config-cac -l $LASTNAME -m config`
 
 Troubleshoot git using curl:
+
 `git-config-cac -l $LASTNAME -m test_curl -u $HTTPS_GIT_URL`
 
 Troubleshoot git:
+
 `git-config-cac -l $LASTNAME -m test_git -u $HTTPS_GIT_URL`
 
 ## Formula: git-https-cac
@@ -42,6 +48,7 @@ Alternatively, the patch also supports passing the shell variables `GIT_SSL_KEYT
 Setup opensc module for p11-kit and pkcs11 engine for openssl.
 * Setup an opensc module for p11-kit.
 * Setup a opensc engine for openssl.
+
 `brew config_ssl`
 
 ## Documentation
