@@ -4,7 +4,8 @@
 class GitConfigCac < Formula
   desc ""
   homepage ""
-  url "https://github.com/bhencey/homebrew-extensions/archive/refs/tags/setup_cac_0.4.tar.gz"
+  #url "https://github.com/bhencey/homebrew-extensions/archive/refs/tags/setup_cac_0.4.tar.gz"
+  url "https://gitlab.rdte.afrl.dren.mil/henceybm/homebrew-extensions/-/archive/setup_cac_0.4/homebrew-extensions-setup_cac_0.4.tar.gz"
   sha256 "ed3c77d5603e534ac62fca5dc674772d3c3c031f8318e5c726937c2fef9383ea"
   license ""
   
@@ -14,7 +15,6 @@ class GitConfigCac < Formula
 
   def install
     bin.install "git-config-cac"
-    #system "patch -b #{etc}/openssl@1.1/opensssl.cnf diffs/openssl_cnf.diff"
   end
 
   test do
