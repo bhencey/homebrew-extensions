@@ -68,7 +68,7 @@ In browser, navigate to the `setup_cac` branch and download the zip or tar ball 
 SETUP_CAC_ZIP=<<File Path Here>>
 ```
 ```
-echo "moving $SETUP_CAC_ZIP to $(brew --cache -s bhencey/extensions/git-config-cac)"
-mv $SETUP_CAC_ZIP $(brew --cache -s bhencey/extensions/git-config-cac)
+echo "moving $SETUP_CAC_ZIP to $(brew --cache -s $HB_TAP/git-config-cac)"
+mv $SETUP_CAC_ZIP $(brew --cache -s $HB_TAP/git-config-cac)
 ```
 Now, you can use the commands documented in the [Read Me](README.md).
