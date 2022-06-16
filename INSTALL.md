@@ -11,7 +11,7 @@ echo $SHELL
 
 If it returns `/bin/zsh` then run the terminal commands:
 ```
-echo 'export PATH="$HOME/.brew/bin:$HOME/.brew/sbin:$PATH"' >> ~/.zshrc
+echo 'export PATH="$HOME/.brew/bin:$HOME/.brew/sbin:$PATH"' >> ~/.zshenv
 source ~/.zshenv
 ```
 
