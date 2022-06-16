@@ -25,8 +25,6 @@ Finally, run the terminal command:
 ```
 brew doctor
 ```
-
-
 ## Some Preliminaries
 First, run the following terminal commands to define some convenient shell variables:
 
@@ -72,3 +70,20 @@ echo "moving $SETUP_CAC_ZIP to $(brew --cache -s $HB_TAP/git-config-cac)"
 mv $SETUP_CAC_ZIP $(brew --cache -s $HB_TAP/git-config-cac)
 ```
 Now, you can use the commands documented in the [Read Me](README.md).
+
+## How to remove the Tap
+
+**Warning:** Proceed carefully since the following will actually delete files.
+
+Before removing the tap uninstall the tap's formula:
+```
+brew uninstall git-https-cac
+brew uninstall git-config-cac`
+```
+
+You may also want to clean up anything that was installed a  dependency: `curl`, `openssl@1.1`, `opensc`, etc. Then run the following terminal commands:
+
+```
+brew untap $HB_TAP
+rm -r -f $(brew --prefix)/Library/Taps/$HB_TAP
+```
