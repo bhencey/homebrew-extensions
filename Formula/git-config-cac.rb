@@ -14,13 +14,11 @@ class GitConfigCac < Formula
   end
 
   test do
-    assert `which git | grep "$(brew --prefix)"`!=nil, "Using brewed git"
-    assert `p11-kit list-modules`.chomp.match(/opensc/), "OpenSC module installed for p11-kit"
-    assert `openssl engine pkcs11 -t`.chomp.match(/available/), "OpenSSL has pkcs11 engine"
-    assert `curl --engine list`.chomp.match(/pkcs11/), "curl sees OpenSSL's pkcs11 engine"
-    # puts "Setup p11-kit with opensc module"
-    # system "echo module: #{HOMEBREW_PREFIX}/Cellar/opensc/*/lib/opensc-pkcs11.so >#{HOMEBREW_PREFIX}/etc/pkcs11/modules/opensc.module"
-    
-    # system "false"
+    assert !`which git| grep $(brew --prefix)`.nil?, "Not using brewed git "
+    assert_match "opensc", `p11-kit list-modules`, "OpenSC module not installed for p11-kit"
+    assert_match "available", `$(brew --prefix openssl@1.1)/bin/openssl engine pkcs11 -t`,
+      "OpenSSL does not have pkcs11 engine"
+    assert_match "pkcs11", `$(brew --prefix curl)/bin/curl --engine list`,
+      "curl does not see OpenSSL's pkcs11 engine"
   end
 end

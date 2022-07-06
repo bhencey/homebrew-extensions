@@ -11,16 +11,6 @@ class GitHttpsCac < Formula
     regex(/href=.*?git[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
-  # GRABS PRE-BUILT BINARY PACKAGES
-  # bottle do
-  #   sha256 arm64_monterey: "5941a1eb703ac9814c2f8ae7c78ff31630aed04ad90a6a3073e45f4748f96e25"
-  #   sha256 arm64_big_sur:  "c85780549ae8975a0ab785039d4d58eb1e3d8a251770b05ad8d1c6b4e0bf7d44"
-  #   sha256 monterey:       "ab1bc7b6fe710217007d10792425733c09e97d97f1aa3a3b1590038a9d9f4187"
-  #   sha256 big_sur:        "37917165881c4e3bdd99f35b37eb16499e026a67aba92439fb2b3ff5a68c589a"
-  #   sha256 catalina:       "67f355f93ec444d7b0e4ef501c4d7e236eb744dc9f22b03fa00693b86060956d"
-  #   sha256 x86_64_linux:   "17b34da213e4d9f530b2775694a58fbf41212f10684cfae37bc02bdab0cb6e91"
-  # end
-
   depends_on "curl" # built-in does not support openssl encryption engines
   depends_on "gettext"
   depends_on "openssl@1.1"
