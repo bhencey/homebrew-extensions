@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
+function help() {
+  echo "add cac pkcs11 URI to git repo config"
+  echo "git-config-cac -m set -l <last-name>"
+  echo
+  echo "remove cac pkcs11 URI from git repo config"
+  echo "git-config-cac -m unset"
+  echo
+  echo "test cac with URL"
+  echo "git-config-cac -m test_git -l <last-name> -u <https://URL>"
+  echo "git-config-cac -m test_curl -l <last-name> -u <https://URL>"
+}
 # TODO usage documentation
-# retrieve pkcs11 URI for cac
+
 function get_cert() {
   echo
   echo "Searching for token starting with $LNAME"
@@ -13,10 +24,10 @@ function get_cert() {
   echo
 }
 
-# configure local git
-function config_git() {
+# Set CAC for local git repo
+function set_git() {
   get_cert
-  echo Setting git http.sslcert, http.sslkey, etc.
+  echo "Setting git http.sslcert, http.sslkey, etc."
   git config --local http.sslcert "pkcs11:$CACCERT"
   git config --local http.sslcerttype ENG
   git config --local http.sslkey "pkcs11:$CACKEY"
@@ -24,9 +35,9 @@ function config_git() {
   git config --local http.sslengine pkcs11
 }
 
-# Unset local git
+# Unset CAC for local git repo
 function unset_git() {
-  echo Unsetting git http.sslcert, http.sslkey, etc.
+  echo "Unsetting git http.sslcert, http.sslkey, etc."
   git config --local --unset http.sslcert
   git config --local --unset http.sslcerttype
   git config --local --unset http.sslkey
@@ -77,7 +88,7 @@ function test_curl() {
   # curl -v "$URL"
 }
 
-while getopts 'l:m:u:' flag; do
+while getopts 'l:m:u:k:' flag; do
   case "$flag" in
   l)
     LNAME=${OPTARG}
@@ -88,17 +99,25 @@ while getopts 'l:m:u:' flag; do
   u)
     URL=${OPTARG}
     ;;
+  k)
+    KEYID=${OPTARG}
+    ;;
+  h)
+    help
+    exit;;
+  *)
+    echo "invalid flag"
+    exit;;
   esac
 done
 
+# find the authentication key
 KEYID=PIV%20Authentication
-# CACCERT="pkcs11"
-# CACKEY="pkcs11"
-# test_git
+
 
 case "$M" in
-config)
-  config_git
+set)
+  set_git
   ;;
 unset)
   unset_git
@@ -108,5 +127,8 @@ test_git)
   ;;
 test_curl)
   test_curl
+  ;;
+config)
+  set_git
   ;;
 esac
