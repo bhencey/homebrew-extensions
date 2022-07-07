@@ -29,7 +29,7 @@ brew doctor
 First, run the following terminal commands to define some convenient shell variables:
 
 ```
-ORG_NAME="AFRL"
+ORG_NAME="bhencey"
 TAP_NAME="extensions"
 HB_TAP="$ORG_NAME/$TAP_NAME"
 TAP_PATH="$ORG_NAME/homebrew-$TAP_NAME"
