@@ -78,3 +78,4 @@ This patch was based on Brett Stahlman [CAC-Enabled-Git-Setup](https://github.co
 For more details of [installation](INSTALL.md).
 `brew help`, `man brew` or check [Homebrew's documentation](https://docs.brew.sh).
 
+Distribution Statement A: Approved for Public Release; Distribution is Unlimited. PA# AFRL-2022-3020
