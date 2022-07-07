@@ -11,7 +11,7 @@ class GitHttpsCac < Formula
     regex(/href=.*?git[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
-  depends_on "curl" # built-in does not support openssl encryption engines
+  depends_on "curl" # macos built-in does not support openssl encryption engines
   depends_on "gettext"
   depends_on "openssl@1.1"
   depends_on "pcre2"
