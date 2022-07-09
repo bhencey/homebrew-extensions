@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 function help() {
+  echo
+  echo
   echo "add cac pkcs11 URI to git repo config"
   echo "git-config-cac -m set -l <last-name>"
   echo
@@ -9,6 +11,8 @@ function help() {
   echo "test cac with URL"
   echo "git-config-cac -m test_git -l <last-name> -u <https://URL>"
   echo "git-config-cac -m test_curl -l <last-name> -u <https://URL>"
+  echo
+  echo
 }
 # TODO usage documentation
 
@@ -16,12 +20,19 @@ function get_cert() {
   echo
   echo "Searching for token starting with $LNAME"
   CACCERT=($(p11tool --list-tokens | grep -ioe "token=$LNAME\+[a-zA-Z0-9._]\+"))
+  KEYID=PIV%20AUTH%20pubkey
   echo "Found token $CACCERT"
+  CACPUB=($(p11tool --list-all --login pkcs11:$CACCERT | grep -oe "$CACCERT\+[a-zA-Z0-9=%.;]\+$KEYID"))
   echo
+  echo "Found public key $CACPUB" 
+  echo
+  KEYID=PIV%20AUTH%20key
   echo "Searching for certificate ending with $KEYID"
-  CACKEY=($(p11tool --list-all-certs pkcs11:$CACCERT | grep -oe "$CACCERT\+[a-zA-Z0-9=%.;]\+$KEYID"))
-  echo "Found certificate $CACKEY"
+  CACPRV=($(p11tool --list-all --login pkcs11:$CACCERT | grep -oe "$CACCERT\+[a-zA-Z0-9=%.;]\+$KEYID"))
   echo
+  echo "Found private key $CACPRV"
+  CACCERT=$CACPUB
+  CACKEY=$CACPRV 
 }
 
 # Set CAC for local git repo
