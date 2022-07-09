@@ -57,8 +57,8 @@ Now, let's move the unpacked tap to the location of the new tap:
 ```
 echo "creating new local tap: $HB_TAP"
 brew tap-new $HB_TAP
-echo "moving $UNPACK_DIR to $(brew --prefix)/Library/Taps/$HB_TAP"
-mv $UNPACK_DIR $(brew --prefix)/Library/Taps/$HB_TAP
+echo "moving $UNPACK_DIR to $(brew --repository $HB_TAP)"
+mv $UNPACK_DIR $(brew --repository $HB_TAP)
 ```
 ### Download GIT-CONFIG-CAC Files
 In browser, navigate to the `setup_cac` branch and download the zip or tar ball file for the branch. We need to download the files that are installed by the formula. Navigate

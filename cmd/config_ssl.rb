@@ -3,9 +3,9 @@
 module Homebrew
   module_function
 
-  def setup_openssl_args; end
+  def config_ssl; end
 
-  def setup_openssl
+  def config_ssl
     cmd_path = __dir__
 
     puts "Setup p11-kit with opensc module"
