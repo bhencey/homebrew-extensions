@@ -4,8 +4,12 @@ ETC=$(brew --prefix)/etc
 
 CNF_FILE=$ETC/openssl@1.1/openssl.cnf
 OPENSC_FILE=$(brew --prefix opensc)/lib/pkcs11/opensc-pkcs11.so
-LIBP11_FILE=$(brew --prefix libp11)/lib/engines-1.1/libpkcs11.dylib
-# TODO - Adjust for Linux libpkcs11.so
+PLATFORM="$(uname -s)"
+case "${PLATFOR}" in
+  Linux*)   EXT=so;;
+  Darwin*)  EXT=dylib;;
+esac
+LIBP11_FILE=$(brew --prefix libp11)/lib/engines-1.1/libpkcs11.$EXT
 
 # prepend to orginal openssl.cnf 
 cp -n $CNF_FILE $CNF_FILE.orig

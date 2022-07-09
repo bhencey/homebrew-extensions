@@ -6,7 +6,9 @@ class GitConfigCac < Formula
   license ""
 
   depends_on "git-https-cac"
-  depends_on "gnutls"
+  # depends_on "gnutls"
+  depends_on "p11-kit"
+  depends_on "libp11"
   depends_on "opensc"
 
   def install
