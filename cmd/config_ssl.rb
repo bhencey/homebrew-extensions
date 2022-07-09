@@ -3,7 +3,7 @@
 module Homebrew
   module_function
 
-  def config_ssl; end
+  def config_ssl_args; end
 
   def config_ssl
     cmd_path = __dir__
