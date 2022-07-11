@@ -27,11 +27,11 @@ function get_cert() {
   echo "Found token $TOKEN"
   echo
   echo "Searching for public key label ending with $CERTID"
-  PUBKEY=($(p11tool --list-all --login pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$CERTID"))
+  PUBKEY=($(p11tool --list-all --detailed-url --only-urls --login pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$CERTID"))
   echo "Found public key $PUBKEY" 
   echo
   echo "Searching for private key label ending with $KEYID"
-  PRIVKEY=($(p11tool --list-all --login pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$KEYID"))
+  PRIVKEY=($(p11tool --list-all --detailed-url --only-urls --login pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$KEYID"))
   echo "Found private key $PRIVKEY"
   echo
 }
