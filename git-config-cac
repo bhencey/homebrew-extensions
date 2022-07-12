@@ -9,7 +9,7 @@ function help() {
   echo "$ git-config-cac -m unset"
   echo
   echo "test cac with test URL"
-  echo "$ git-config-cac -m test_git -l <token prefix> -u <https://URL>"
+  echo "$ git-config-cac -m test_git -l <token prefix> -u <https://URL> -b <branch>"
   echo "$ git-config-cac -m test_curl -l <token prefix> -u <https://URL>"
   echo
   echo "-m    mode [set | unset | test_git | test_curl]"
@@ -17,21 +17,23 @@ function help() {
   echo "-c    label suffix for public key identifier default=PIV%20AUTH%20pubkey"
   echo "-l    prefix for token identifier"
   echo "-u    test URL for git or curl test"
+  echo "-b    branch for git test"
 }
 # TODO usage documentation
 
 function get_cert() {
+  read -s -p "Enter PKCS#11 token PIN:  " PIN
   echo
   echo "Searching for token starting with $PRETOKEN"
   TOKEN=($(p11tool --list-tokens | grep -ioe "token=$PRETOKEN\+[a-zA-Z0-9._]\+"))
   echo "Found token $TOKEN"
   echo
   echo "Searching for public key label ending with $CERTID"
-  PUBKEY=($(p11tool --list-all --detailed-url --only-urls --login pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$CERTID"))
+  PUBKEY=($(p11tool --list-all --detailed-url --only-urls --login --set-pin=$PIN pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$CERTID"))
   echo "Found public key $PUBKEY" 
   echo
   echo "Searching for private key label ending with $KEYID"
-  PRIVKEY=($(p11tool --list-all --detailed-url --only-urls --login pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$KEYID"))
+  PRIVKEY=($(p11tool --list-all --detailed-url --only-urls --login --set-pin=$PIN pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$KEYID"))
   echo "Found private key $PRIVKEY"
   echo
 }
@@ -73,19 +75,17 @@ function test_git() {
   export GIT_SSL_CERTTYPE=ENG
   export GIT_SSL_ENGINE=PKCS11
   #export GIT_SSL_BACKEND=openssl
-  git fetch --dry-run $URL master
+  $(brew --prefix git-https-cac)/bin/git fetch --dry-run $URL $BRANCH
 }
 
 function test_curl() {
   get_cert
   echo Testing curl...
   echo Using: $URL
-  SSL_CERT="pkcs11:$PUBKEY"
-  SSL_KEY="pkcs11:$PRIVKEY"
   # explicitly passing flags
   echo -------------------------------------
   echo Testing curl with flags
-  curl -v --engine pkcs11 --cert "pkcs11:$PUBKEY" --cert-type ENG --key "pkcs11:$PRIVKEY" --key-type ENG "$URL"
+  $(brew --prefix curl)/bin/curl -v --engine pkcs11 --cert "pkcs11:$PUBKEY" --cert-type ENG --key "pkcs11:$PRIVKEY" --key-type ENG --url "$URL"
   # echo
   # echo --------------------------------------
   # echo Testing curl with environment variables
@@ -97,27 +97,19 @@ function test_curl() {
   # export CURLOPT_SSLKEYTYPE=ENG
   # export CURLOPT_SSLENGINE=pkcs11
   # export CURL_SSL_BACKEND=openssl
-  # curl -v "$URL"
 }
 
 
 # default public and private key suffixes
 CERTID=PIV%20AUTH%20pubkey
 KEYID=PIV%20AUTH%20key
+# default git test branch
+BRANCH=main
 
-while getopts 'l:m:u:k:c:h:' flag; do
+while getopts 'l:m:u:k:c:h:b:' flag; do
   case "$flag" in
-  l)
-    PRETOKEN=${OPTARG}
-    ;;
-  m)
-    M=${OPTARG}
-    ;;
-  u)
-    URL=${OPTARG}
-    ;;
-  k)
-    KEYID=${OPTARG}
+  b)
+    BRANCH=${OPTARG}
     ;;
   c)
     CERTID=${OPTARG}
@@ -125,6 +117,18 @@ while getopts 'l:m:u:k:c:h:' flag; do
   h)
     help
     exit;;
+  l)
+    PRETOKEN=${OPTARG}
+    ;;
+  m)
+    M=${OPTARG}
+    ;;
+  k)
+    KEYID=${OPTARG}
+    ;;
+  u)
+    URL=${OPTARG}
+    ;;
   *)
     echo "invalid flag"
     exit;;
