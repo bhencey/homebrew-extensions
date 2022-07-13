@@ -25,7 +25,7 @@ function get_cert() {
   read -s -p "Enter PKCS#11 token PIN:  " PIN
   echo
   echo "Searching for token starting with $PRETOKEN"
-  TOKEN=($(p11tool --list-tokens | grep -ioe "token=$PRETOKEN\+[a-zA-Z0-9._]\+"))
+  TOKEN=($(p11tool --list-tokens | grep -ioe "token=$PRETOKEN\+[a-zA-Z0-9._%]\+"))
   echo "Found token $TOKEN"
   echo
   echo "Searching for public key label ending with $CERTID"
@@ -85,7 +85,10 @@ function test_curl() {
   # explicitly passing flags
   echo -------------------------------------
   echo Testing curl with flags
-  $(brew --prefix curl)/bin/curl -v --engine pkcs11 --cert "pkcs11:$PUBKEY" --cert-type ENG --key "pkcs11:$PRIVKEY" --key-type ENG --url "$URL"
+  $(brew --prefix curl)/bin/curl -vi -L -o test_curl_out.txt --engine pkcs11 \
+    --cert "pkcs11:$PUBKEY" --cert-type ENG \
+    --key "pkcs11:$PRIVKEY" --key-type ENG \
+    --url "$URL"
   # echo
   # echo --------------------------------------
   # echo Testing curl with environment variables
