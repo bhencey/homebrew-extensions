@@ -6,19 +6,15 @@ class GitConfigCac < Formula
   license ""
 
   depends_on "git-https-cac"
-  # depends_on "gnutls"
-  depends_on "p11-kit"
   depends_on "libp11"
   depends_on "opensc"
+  depends_on "p11-kit"
 
   def install
     bin.install "git-config-cac"
   end
 
   test do
-    assert_match "openssl.cnf", `ls $(brew --prefix)/etc/openssl@1.1/`,
-      "missiong openssl.cnf file"
-
     assert_match "opensc-pkcs11.so", `ls $(brew --prefix opensc)/lib/pkcs11/`,
       "shared library opensc_pkc11.so doesn't exist"
 
@@ -36,5 +32,11 @@ class GitConfigCac < Formula
 
     assert_match "pkcs11", `$(brew --prefix curl)/bin/curl --engine list`,
       "curl missing pkcs11 engine"
+
+    assert_match "openssl.cnf", `ls $(brew --prefix)/etc/openssl@1.1/`,
+      "openssl.cnf file doesn't exist"
+
+    assert_match "engine_id = pkcs11", `cat $(brew --prefix)/etc/openssl@1.1/openssl.cnf`,
+      "openssl.cnf missing pkcs11 engine"
   end
 end
