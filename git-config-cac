@@ -9,15 +9,14 @@ function help() {
   echo "$ git-config-cac -m unset"
   echo
   echo "test cac with test URL"
-  echo "$ git-config-cac -m test_git -l <token prefix> -u <https://URL> -b <branch>"
+  echo "$ git-config-cac -m test_git -l <token prefix> -u <https://URL>"
   echo "$ git-config-cac -m test_curl -l <token prefix> -u <https://URL>"
   echo
   echo "-m    mode [set | unset | test_git | test_curl]"
-  echo "-k    lablel suffix for private key identifier default=PIV%20AUTH%20pubkey"
-  echo "-c    label suffix for public key identifier default=PIV%20AUTH%20pubkey"
+  echo "-k    suffix for private key identifier default=PIV%20AUTH%20pubkey"
+  echo "-c    suffix for public key identifier default=PIV%20AUTH%20key"
   echo "-l    prefix for token identifier"
   echo "-u    test URL for git or curl test"
-  echo "-b    branch for git test"
 }
 # TODO usage documentation
 
@@ -41,65 +40,64 @@ function get_cert() {
 # Set CAC for local git repo
 function set_git() {
   get_cert
-  echo "Setting git http.sslcert, http.sslkey, etc."
+  echo "Setting local git repository with http.sslcert, http.sslkey, etc."
+  echo
+  git config --local http.sslbackend openssl
+  git config --local http.sslengine pkcs11
   git config --local http.sslcert "pkcs11:$PUBKEY"
   git config --local http.sslcerttype ENG
   git config --local http.sslkey "pkcs11:$PRIVKEY"
   git config --local http.sslkeytype ENG
-  git config --local http.sslengine pkcs11
 }
 
 # Unset CAC for local git repo
 function unset_git() {
   echo "Unsetting git http.sslcert, http.sslkey, etc."
+  echo
   git config --local --unset http.sslcert
   git config --local --unset http.sslcerttype
   git config --local --unset http.sslkey
   git config --local --unset http.sslkeytype
   git config --local --unset http.sslengine
+  git config --local --unset http.sslbackend
 }
 
 function test_git() {
   get_cert
-  echo Testing git...
-  # sh test_curl-https-cac.sh -c "$TOKEN" -k "$CACKEY" -u "$URL"
+  echo Testing CAC/ECA certificates with git...
+  echo Using: $URL
+  echo
   # set verbosity for git trace
   # export GIT_TRACE=1
-  # export GIT_CURL_VERBOSE=1
-  # set verbosity for cac authentiaction
+  export GIT_CURL_VERBOSE=1
+
+  # set verbosity for OpenSC
   # export OPENSC_DEBUG=3
-  # export GIT_SSL_CERT_PASSWORD_PROTECTED=1
-  export GIT_SSL_CERT="pkcs11:$PUBKEY"
-  export GIT_SSL_KEY="pkcs11:$PRIVKEY"
-  export GIT_SSL_KEYTYPE=ENG
-  export GIT_SSL_CERTTYPE=ENG
-  export GIT_SSL_ENGINE=PKCS11
-  #export GIT_SSL_BACKEND=openssl
-  $(brew --prefix git-https-cac)/bin/git fetch --dry-run $URL $BRANCH
+
+  echo -------------------------------------
+  $(brew --prefix git-https-cac)/bin/git \
+    -c http.sslverify=false \
+    -c http.sslcert="pkcs11:$PUBKEY" -c http.sslcerttype=ENG \
+    -c http.sslkey="pkcs11:$PRIVKEY" -c http.sslkeytype=ENG \
+    -c http.sslbackend=openssl
+    -c http.sslengine=pkcs11 \
+    fetch --dry-run $URL 2> test_git_out.txt
 }
 
 function test_curl() {
   get_cert
-  echo Testing curl...
+  echo Testing CAC/ECA certificates with curl...
   echo Using: $URL
+  echo
   # explicitly passing flags
+  # set environment variables
+  export CURL_SSL_BACKEND=openssl
+  
   echo -------------------------------------
-  echo Testing curl with flags
-  $(brew --prefix curl)/bin/curl -vi -L -o test_curl_out.txt --engine pkcs11 \
+  $(brew --prefix curl)/bin/curl -v -L --engine pkcs11 \
     --cert "pkcs11:$PUBKEY" --cert-type ENG \
     --key "pkcs11:$PRIVKEY" --key-type ENG \
-    --url "$URL"
-  # echo
-  # echo --------------------------------------
-  # echo Testing curl with environment variables
-  # TODO currently broken
-  # set curl option flags
-  # export CULROPT_SSLCERT="pkcs11:$TOKEN"
-  # export CURLOPT_SSLKEY="pkcs11:$CACKEY"
-  # export CURLOPT_SSLCERTTYPE=ENG
-  # export CURLOPT_SSLKEYTYPE=ENG
-  # export CURLOPT_SSLENGINE=pkcs11
-  # export CURL_SSL_BACKEND=openssl
+    --url "$URL" 2> test_curl_out.txt
 }
 
 
@@ -109,11 +107,8 @@ KEYID=PIV%20AUTH%20key
 # default git test branch
 BRANCH=main
 
-while getopts 'l:m:u:k:c:h:b:' flag; do
+while getopts 'l:m:u:k:c:h:' flag; do
   case "$flag" in
-  b)
-    BRANCH=${OPTARG}
-    ;;
   c)
     CERTID=${OPTARG}
     ;;
