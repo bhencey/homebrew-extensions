@@ -3,22 +3,19 @@
 Use the formulae and scripts at your own risk. Although significant effort has been made to avoid issues, there may be unexpected side effects for different system/platform configurations.
 
 ## Setup Homebrew in Your User-Space
-This is a crucial step if you aren't a `sudo` user, or you simply want to ensure Homebew does not modify system files. First, download homebrew with the terminal commands:
+This is a crucial step if you aren't a `sudo` user, or you simply want to ensure Homebew does not modify system files. The following adapts the steps for [Untar Anwyere](https://docs.brew.sh/Installation#untar-anywhere). First, download homebrew with the terminal commands:
 ```
-git clone --depth=1 https://github.com/Homebrew/brew ~/.brew
-echo $SHELL
+BREW_PATH="$HOME/.brew"
+git clone --depth=1 https://github.com/Homebrew/brew $BREW_PATH
+eval "$($BREW_PATH/bin/brew shellenv)"
+brew update --force --quiet
+chmod -R go-w "$(brew --prefix)/share/zsh"
 ```
 
-If it returns `/bin/zsh` then run the terminal commands:
+Add Homebrew to your path with the terminal commands:
 ```
-echo 'export PATH="$HOME/.brew/bin:$HOME/.brew/sbin:$PATH"' >> ~/.zshenv
+echo 'export PATH="$BREW_PATH/bin:$BREW_PATH/sbin:$PATH"' >> ~/.zshenv
 source ~/.zshenv
-```
-
-If it returns `/bin/bash` then run ther terminal commands:
-```
-echo 'export PATH="$HOME/.brew/bin:$HOME/.brew/sbin:$PATH"' >> ~/.bash_profile
-source ~/.bash_profile
 ```
 
 Finally, run the terminal command:
@@ -43,7 +40,7 @@ brew tap $TAP_NAME
 ```
 
 ## Manually Install Tap
-If it's on authenticated repository, it's going to take a few more steps.
+If it's on an authenticated repository, it's going to take a few more steps.
 
 ### Download the Tap as a Zip or Tar Ball
 In your browser, navigate to the `dev` or `main` branch in the repo and download the zip or tar ball file for that branch. Next, unzip/unpack the compressed file,  and setup a handy dandy shell variable by running the terminal command:
