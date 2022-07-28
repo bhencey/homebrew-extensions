@@ -13,45 +13,45 @@ function help() {
   echo "$ git-config-cac -m test_curl -l <token prefix> -u <https://URL>"
   echo
   echo "-m    mode [set | unset | test_git | test_curl]"
-  echo "-k    suffix for private key identifier default=PIV%20AUTH%20pubkey"
-  echo "-c    suffix for public key identifier default=PIV%20AUTH%20key"
+  echo "-k    suffix for certificate key label: default=PIV%20Authentication"
+  echo "-c    suffix for private key label: default=PIV%20AUTH%20key"
   echo "-l    prefix for token identifier"
   echo "-u    test URL for git or curl test"
 }
-# TODO usage documentation
 
 function get_cert() {
-  read -s -p "Enter PKCS#11 token PIN:  " PIN
-  echo
   echo "Searching for token starting with $PRETOKEN"
   TOKEN=($(p11tool --list-tokens | grep -ioe "token=$PRETOKEN\+[a-zA-Z0-9._%]\+"))
   echo "Found token $TOKEN"
   echo
-  echo "Searching for public key label ending with $CERTID"
-  PUBKEY=($(p11tool --list-all --detailed-url --only-urls --login --set-pin=$PIN pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$CERTID"))
-  echo "Found public key $PUBKEY" 
+  echo "Searching for certificate label ending with $CERTID"
+  CERT_KEY=($(p11tool --list-certs --detailed-url --only-urls pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$CERTID"))
+  echo "Found public key $CERT_KEY" 
   echo
   echo "Searching for private key label ending with $KEYID"
-  PRIVKEY=($(p11tool --list-all --detailed-url --only-urls --login --set-pin=$PIN pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$KEYID"))
-  echo "Found private key $PRIVKEY"
+  PRIV_KEY=($(p11tool --list-keys --detailed-url --only-urls --login pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$KEYID"))
+  echo "Found private key $PRIV_KEY"
   echo
 }
 
 # Set CAC for local git repo
 function set_git() {
-  get_cert
+  echo -------------------------------------
+  echo
   echo "Setting local git repository with http.sslcert, http.sslkey, etc."
+  echo Using: $URL
   echo
   git config --local http.sslbackend openssl
   git config --local http.sslengine pkcs11
-  git config --local http.sslcert "pkcs11:$PUBKEY"
+  git config --local http.sslcert "pkcs11:$CERT_KEY"
   git config --local http.sslcerttype ENG
-  git config --local http.sslkey "pkcs11:$PRIVKEY"
+  git config --local http.sslkey "pkcs11:$PRIV_KEY"
   git config --local http.sslkeytype ENG
 }
 
 # Unset CAC for local git repo
 function unset_git() {
+  echo -------------------------------------
   echo "Unsetting git http.sslcert, http.sslkey, etc."
   echo
   git config --local --unset http.sslcert
@@ -63,7 +63,8 @@ function unset_git() {
 }
 
 function test_git() {
-  get_cert
+  echo -------------------------------------
+  echo
   echo Testing CAC/ECA certificates with git...
   echo Using: $URL
   echo
@@ -73,39 +74,44 @@ function test_git() {
 
   # set verbosity for OpenSC
   # export OPENSC_DEBUG=3
-
-  echo -------------------------------------
+  
   $(brew --prefix git-https-cac)/bin/git \
     -c http.sslverify=false \
-    -c http.sslcert="pkcs11:$PUBKEY" -c http.sslcerttype=ENG \
-    -c http.sslkey="pkcs11:$PRIVKEY" -c http.sslkeytype=ENG \
-    -c http.sslbackend=openssl
+    -c http.sslcert="pkcs11:$CERT_KEY" -c http.sslcerttype=ENG \
+    -c http.sslkey="pkcs11:$PRIV_KEY" -c http.sslkeytype=ENG \
+    -c http.sslbackend=openssl \
     -c http.sslengine=pkcs11 \
-    fetch --dry-run $URL 2> test_git_out.txt
+    clone $URL 2> test_git_out.txt test_git
+  rm -r -f test_git
+  echo
 }
 
 function test_curl() {
-  get_cert
+  echo -------------------------------------
+  echo 
   echo Testing CAC/ECA certificates with curl...
   echo Using: $URL
   echo
   # explicitly passing flags
   # set environment variables
   export CURL_SSL_BACKEND=openssl
-  
-  echo -------------------------------------
+
   $(brew --prefix curl)/bin/curl -v -L --engine pkcs11 \
-    --cert "pkcs11:$PUBKEY" --cert-type ENG \
-    --key "pkcs11:$PRIVKEY" --key-type ENG \
+    --cert "pkcs11:$CERT_KEY" --cert-type ENG \
+    --key "pkcs11:$PRIV_KEY" --key-type ENG \
     --url "$URL" 2> test_curl_out.txt
+  echo
 }
 
+echo "==================================="
+echo "Use the following command for help:"
+echo "$ git-config-cac -h true"
+echo -------------------------------------
+echo
 
 # default public and private key suffixes
-CERTID=PIV%20AUTH%20pubkey
+CERTID=PIV%20Authentication
 KEYID=PIV%20AUTH%20key
-# default git test branch
-BRANCH=main
 
 while getopts 'l:m:u:k:c:h:' flag; do
   case "$flag" in
@@ -135,18 +141,22 @@ done
 
 case "$M" in
 set)
+  get_cert
   set_git
   ;;
 unset)
   unset_git
   ;;
 test_git)
+  get_cert
   test_git
   ;;
 test_curl)
+  get_cert
   test_curl
   ;;
 config)
+  get_cert
   set_git
   ;;
 esac
