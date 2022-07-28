@@ -1,8 +1,8 @@
 class GitConfigCac < Formula
   desc "Setup CAC authentication over https for Git"
   homepage "https://weaponone.test.cce.af.mil/"
-  url "https://github.com/bhencey/homebrew-extensions/archive/refs/tags/setup_cac_0.5.2.tar.gz"
-  sha256 "01e5897d065ecd1219652a7564c90af68f1b5e2439e94582839ea4127a616f0a"
+  url "https://github.com/bhencey/homebrew-extensions/archive/refs/tags/setup_cac_0.5.3.tar.gz"
+  sha256 "403ceab3b61e229b52b61159a81a033be7a74b94c7c5d47cdd487006ce72d3cfbres"
   license ""
 
   depends_on "git-https-cac"
