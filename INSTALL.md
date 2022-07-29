@@ -3,28 +3,19 @@
 Use the formulae and scripts at your own risk. Although significant effort has been made to avoid issues, there may be unexpected side effects for different system/platform configurations.
 
 ## Setup Homebrew in Your User-Space
-This is a crucial step if you aren't a `sudo` user, or you simply want to ensure Homebew does not modify system files. The following adapts the steps for [Untar Anwyere](https://docs.brew.sh/Installation#untar-anywhere). First, download homebrew with the terminal commands:
+This is a crucial step if you aren't a `sudo` user, or you simply want to ensure Homebew does not modify system files. The following adapts the steps for [Untar Anwyere](https://docs.brew.sh/Installation#untar-anywhere). Run the following commands:
 ```
-
-
-eval "$($BREW_PATH/bin/brew shellenv)"
-brew update --force --quiet
-chmod -R go-w "$(brew --prefix)/share/zsh"
-
 BREWPATH="$HOME/.brew"
 echo "Downloading Homebrew to $BREWPATH"
 git clone --depth=1 https://github.com/Homebrew/brew $BREWPATH
-edho
+echo "---------------------------------------------------------"
 echo "Temporarily setting environment variables..."
 test -d $BREWPATH && eval "$($BREWPATH/bin/brew shellenv)"
+echo "Adding to envirnonment variables to profile..."
 test -r ~/.bash_profile && echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bash_profile
-echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.profile
-```
-
-Add Homebrew to your path with the terminal commands:
-```
-echo 'eval "$($BREW_PATH/bin/brew shellenv)"' >> ~/.zshrc
-source ~/.zshrc
+echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.zprofile
+brew update --force --quiet
+chmod -R go-w "$(brew --prefix)/share/zsh"
 ```
 
 Finally, run the terminal command:
