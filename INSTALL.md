@@ -5,17 +5,26 @@ Use the formulae and scripts at your own risk. Although significant effort has b
 ## Setup Homebrew in Your User-Space
 This is a crucial step if you aren't a `sudo` user, or you simply want to ensure Homebew does not modify system files. The following adapts the steps for [Untar Anwyere](https://docs.brew.sh/Installation#untar-anywhere). First, download homebrew with the terminal commands:
 ```
-BREW_PATH="$HOME/.brew"
-git clone --depth=1 https://github.com/Homebrew/brew $BREW_PATH
+
+
 eval "$($BREW_PATH/bin/brew shellenv)"
 brew update --force --quiet
 chmod -R go-w "$(brew --prefix)/share/zsh"
+
+BREWPATH="$HOME/.brew"
+echo "Downloading Homebrew to $BREWPATH"
+git clone --depth=1 https://github.com/Homebrew/brew $BREWPATH
+edho
+echo "Temporarily setting environment variables..."
+test -d $BREWPATH && eval "$($BREWPATH/bin/brew shellenv)"
+test -r ~/.bash_profile && echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bash_profile
+echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.profile
 ```
 
 Add Homebrew to your path with the terminal commands:
 ```
-echo 'export PATH="$BREW_PATH/bin:$BREW_PATH/sbin:$PATH"' >> ~/.zshenv
-source ~/.zshenv
+echo 'eval "$($BREW_PATH/bin/brew shellenv)"' >> ~/.zshrc
+source ~/.zshrc
 ```
 
 Finally, run the terminal command:
