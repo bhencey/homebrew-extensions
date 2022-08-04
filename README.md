@@ -22,21 +22,21 @@ with a pkcs11 engine definition.
 
 ## What's in the tap?
 The tap contains following Homebrew formulae and commands:
-* `git-https-config` formula: Install the packages needed to access your CAC and configure your git repo CAC authentication.
+* `git-config-cac` formula: Install the packages needed to access your CAC and configure your git repo CAC authentication.
 * `git-https-cac` formula: Install a patched version of Git that passes http config elements to curl.
 *	`config_ssl` command: Setup an opensc module for p11-kit and a pkcs11 engine for openssl.
 
 
 Sound like a lot? Thankfully, you only need the following commands to setup a git repository with CAC access:
 ```
-brew install git-https-config
+brew install git-config-cac
 brew setup_openssl
 git-config-cac -l $LASTNAME -m config
 ```
-## Formula and external commands: git-https-config
+## Formula and external commands: git-config-cac
 This formula installs a helper shell script for extracting pkcs11 URI from a CAC by running the terminal command:
 ```
-brew install git-https-config
+brew install git-config-cac
 ```
 Note, this formula installs `opensc`, `gnutls`, and `git-https-cac` (see below) formulae as required dependencies. After installing the formula, the Hombrew command `config_ssl` (discussed below) will setup a pkcs11 engiine for openssl.
 

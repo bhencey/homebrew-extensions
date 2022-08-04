@@ -36,7 +36,7 @@ TAP_PATH="$ORG_NAME/homebrew-$TAP_NAME"
 If you found this page on github: `https://github.com/$TAP_PATH`. Then simply download the tap by running the following in your terminal.
 
 ```
-brew tap $TAP_NAME
+brew tap $HB_TAP
 ```
 
 ## Manually Install Tap
