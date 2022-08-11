@@ -25,8 +25,8 @@ function get_cert() {
   echo "Found token $TOKEN"
   echo
   echo "Searching for certificate label ending with $CERTID"
-  CERT_KEY=($(p11tool --list-certs --detailed-url --only-urls pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$CERTID"))
-  echo "Found public key $CERT_KEY" 
+  CERT_KEY=($(p11tool --list-all --detailed-url --only-urls pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$CERTID"))
+  echo "Found certificate key $CERT_KEY" 
   echo
   echo "Searching for private key label ending with $KEYID"
   PRIV_KEY=($(p11tool --list-keys --detailed-url --only-urls --login pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$KEYID"))
