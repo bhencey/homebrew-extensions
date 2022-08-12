@@ -20,18 +20,46 @@ function help() {
 }
 
 function get_cert() {
+  echo
   echo "Searching for token starting with $PRETOKEN"
   TOKEN=($(p11tool --list-tokens | grep -ioe "token=$PRETOKEN\+[a-zA-Z0-9._%]\+"))
-  echo "Found token $TOKEN"
-  echo
+  if [ -z "$TOKEN"]
+  then
+    echo
+    echo "Did not find token beginning with $PRETOKEN!"
+    exit 1
+  else
+    echo "Found token $TOKEN"
+    echo
+  fi
+
+  
   echo "Searching for certificate label ending with $CERTID"
-  CERT_KEY=($(p11tool --list-all --detailed-url --only-urls pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$CERTID"))
-  echo "Found certificate key $CERT_KEY" 
-  echo
+  read -sp "Enter SmartCard PIN:  " PIN
+  CERT_KEY=($(p11tool --list-all --detailed-url --only-urls pkcs11:$TOKEN --set-pin $PIN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$CERTID"))
+  if [ -z "$TOKEN"]
+  then
+    echo
+    echo "Did not find a pkcs11 object ending with with $CERTID!"
+    exit 1
+  else
+    echo "Found certificate key $CERT_KEY"
+    echo
+  fi
+
+  
   echo "Searching for private key label ending with $KEYID"
-  PRIV_KEY=($(p11tool --list-keys --detailed-url --only-urls --login pkcs11:$TOKEN | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$KEYID"))
-  echo "Found private key $PRIV_KEY"
-  echo
+  PRIV_KEY=($(p11tool --list-keys --detailed-url --only-urls --login pkcs11:$TOKEN --set-pin $PIN  | grep -oe "$TOKEN\+[a-zA-Z0-9=%.;]\+$KEYID"))
+  
+    if [ -z "$TOKEN"]
+  then
+    echo
+    echo "Did not find a pkcs11 object ending with with $KEYID!"
+    exit 1
+  else
+    echo "Found private key $PRIV_KEY"
+    echo
+  fi
 }
 
 # Set CAC for local git repo
@@ -39,7 +67,6 @@ function set_git() {
   echo -------------------------------------
   echo
   echo "Setting local git repository with http.sslcert, http.sslkey, etc."
-  echo Using: $URL
   echo
   git config --local http.sslbackend openssl
   git config --local http.sslengine pkcs11
